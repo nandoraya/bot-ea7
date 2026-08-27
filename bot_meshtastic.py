@@ -1201,11 +1201,28 @@ def mqtt_check_worker():
         time.sleep(300)
 
 # --- PROCESADOR RADIO ---
+def _nombre_nodo(interface, node_id):
+    """Resuelve el nombre corto de un nodo con lookup insensible a mayúsculas."""
+    low = str(node_id).lower()
+    n_info = interface.nodes.get(low) or {}
+    if not n_info:
+        for k, v in (interface.nodes or {}).items():
+            if str(k).lower() == low:
+                n_info = v
+                break
+    return n_info.get('user', {}).get('shortName') or node_id
+
 def on_receive(packet, interface):
     try:
         raw_num_id = packet.get('from') 
         if not raw_num_id: return
-        sender_id = f"!{raw_num_id:08x}" if isinstance(raw_num_id, int) else str(raw_num_id)
+        # Normalizar SIEMPRE a !xxxxxxxx en minúsculas (la lib 2.7.7 puede
+        # traer 'from' como int o str, y en este caso el lookup coincide).
+        if isinstance(raw_num_id, str):
+            limpio = raw_num_id.lstrip('!')
+            sender_id = "!{}".format(limpio.lower()) if limpio else raw_num_id.lower()
+        else:
+            sender_id = "!{:08x}".format(raw_num_id)
         if sender_id == MI_NODO_ID: return
 
         source_channel = packet.get('channel', 0)
@@ -1240,8 +1257,7 @@ def on_receive(packet, interface):
                     ultimo_ts, u_aviso, est_anterior = resultado
                     intervalo = int(ahora_pos - ultimo_ts)
                     if intervalo > 15:
-                        n_info = interface.nodes.get(sender_id, {})
-                        s_name = n_info.get('user', {}).get('shortName') or sender_id
+                        s_name = _nombre_nodo(interface, sender_id)
                         if 15 < intervalo <= 1200:
                             proteccion = get_proteccion()
                             nuevo_aviso_ts = u_aviso
@@ -1269,7 +1285,7 @@ def on_receive(packet, interface):
         if hops is not None:
             n_info = interface.nodes.get(sender_id, {})
             l_name = n_info.get('user', {}).get('longName')
-            s_name = n_info.get('user', {}).get('shortName') or sender_id
+            s_name = _nombre_nodo(interface, sender_id)
             n_role = n_info.get('user', {}).get('role')
             guardar_nodo_db(sender_id, l_name, hops, n_role, s_name)
             conn_h = None
@@ -1303,8 +1319,7 @@ def on_receive(packet, interface):
             to_int = packet.get("to", 0xFFFFFFFF)
             es_dm = (to_id_str not in ("^all", "", None)) or (isinstance(to_int, int) and to_int != 0xFFFFFFFF and to_int != 0) 
             
-            n_info = interface.nodes.get(sender_id, {})
-            s_name = n_info.get('user', {}).get('shortName') or sender_id
+            s_name = _nombre_nodo(interface, sender_id)
 
             ch_name = CHANNEL_NAMES.get(packet.get("channel", 0), "Ch{}".format(packet.get("channel", 0)))
             if not msg_cmd.startswith("/"):
