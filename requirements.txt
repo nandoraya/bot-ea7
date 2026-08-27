@@ -1,0 +1,6 @@
+meshtastic==2.7.7
+Pypubsub==4.0.7
+paho-mqtt==2.1.0
+requests==2.32.5
+beautifulsoup4==4.11.2
+python-dotenv==0.21.0

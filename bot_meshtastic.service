@@ -1,0 +1,14 @@
+[Unit]
+Description=Bot Meshtastic Meteo Almería
+After=network.target
+
+[Service]
+# Ajusta la ruta a tu carpeta y a tu entorno virtual (venv)
+WorkingDirectory=/home/nando/venv
+ExecStart=/home/nando/venv/bin/python3 /home/nando/venv/bot_meshtastic.py
+Restart=always
+RestartSec=10
+User=nando
+
+[Install]
+WantedBy=multi-user.target

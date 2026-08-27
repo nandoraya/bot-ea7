@@ -1,0 +1,45 @@
+# === SECRETOS (NUNCA subir) ===
+.env
+.env.*
+!.env.example
+
+# === DATOS DE RUNTIME ===
+*.db
+*.db.bak*
+*.sqlite
+*.sqlite3
+
+# === LOGS ===
+*.log
+*.log.bak*
+
+# === COPIAS DE SEGURIDAD DEL CÓDIGO ===
+*.bak*
+*.backup*
+*.backup[0-9]*
+
+# === SCRIPTS ANTIGUOS / NO DEL BOT ===
+bot_ea7.py
+fire_format.py
+format_c.py
+bot_meshtastic.py.debug
+
+# === VIRTUALENV (symlinks) ===
+lib64
+
+# === CARPETAS DE VERSIONES / VIRTUALENV ===
+veriones BOT/
+venv/
+BOT/
+__pycache__/
+*.pyc
+*.pyo
+
+# === ENTORNO VIRTUAL PYTHON (bin, lib, include) ===
+/bin/
+/lib/
+/include/
+pyvenv.cfg
+pip-selfcheck.json
+share/
+18
