@@ -180,10 +180,13 @@ ROUTERS_VIGILADOS = {
     "!7698895a": "AL01",
     "!8c75ca9f": "AL02",
     "!81fde5cc": "AL03",
-    "!af429732": "TRK3",
+    "!af429732": "MA03",
+    "!da061b4e": "MA04",
     "!b62448bb": "SE01",
     "!f9b6f070": "JA01"
 }
+
+NODOS_INFO2 = {"!d9e01680": "NAN6 (C. Real)", "!cb9edd74": "EA7 (S. Agustin)", "!fd91149c": "EA7 (Jarapa)", "!1adb57bc": "JES2 (S. Filabres)", "!657f422c": "ALM (Costa)", "!fe1d3a9d": "AL08 (Fiñana)", "!b9551f82": "SRA2 (Sierra 2.0)", "!c5d10c03": "CAR^ (Carboneras)", "!7394ac6f": "ALM (Faro)", "!86174e26": "7URI (URE Almería)"}
 
 TELEGRAM_TOKEN = _env("TELEGRAM_TOKEN")
 MI_CHAT_ID = _env("MI_CHAT_ID", "-1004339561947")
@@ -2121,6 +2124,120 @@ def reconciliar_nombres_worker(iface):
             logging.warning(f"RECONCILIA: {e}")
         time.sleep(21600)
 
+ROLES_MESH = {0:"CLIENT", 1:"CLIENT_MUTE", 2:"ROUTER", 3:"ROUTER_CLIENT", 4:"REPEATER", 5:"TRACKER", 6:"SENSOR", 7:"TAK", 8:"CLIENT_HIDDEN", 9:"LOST_AND_FOUND", 10:"TAK_TRACKER", 11:"ROUTER_LATE", 12:"CLIENT_BASE"}
+
+def _nombre_hw(num):
+    if num is None: return "?"
+    try:
+        return meshtastic.mesh_pb2.HardwareModel.Name(num)
+    except Exception:
+        comunes = {9:"RAK4631", 39:"NRF52840_PCA10059", 63:"NRF52 PROMICRO DIY", 117:"RAK3401", 122:"TBEAM_1_WATT"}
+        return comunes.get(num, str(num))
+
+def formatear_uptime(seg):
+    seg = int(seg or 0)
+    d, r = divmod(seg, 86400); h, r = divmod(r, 3600); m = r // 60
+    if d: return f"{d}d {h}h"
+    if h: return f"{h}h {m}m"
+    return f"{m}m"
+
+def resolver_nodo(iface, arg):
+    """Resuelve alias/nombre/ID hacia node_id."""
+    a = str(arg).strip().lower()
+    if not a: return None
+    for d in (ROUTERS_VIGILADOS, NODOS_INFO2):
+        for nid, alias in d.items():
+            if a == alias.strip().lower() or a == nid.lower() or a == nid.lstrip("!"):
+                return nid
+    a_id = a if a.startswith("!") else "!" + a
+    for nid, n in (iface.nodes or {}).items():
+        if str(nid).lower() == a_id.lower(): return nid
+        if isinstance(n, dict):
+            user = n.get("user") or {}
+            sn = (user.get("shortName") or "").strip().lower()
+            ln = (user.get("longName") or "").strip().lower()
+            if a == sn or (len(a) >= 3 and a in ln) or str(nid).lower().endswith(a):
+                return nid
+    return None
+
+def formatear_detalle_nodo(iface, nid, ahora):
+    n = (iface.nodes or {}).get(nid) or {}
+    if not isinstance(n, dict): n = {}
+    user = n.get("user") or {}
+    short = user.get("shortName") or ""
+    long = user.get("longName") or ""
+    alias_oficial = None
+    for d in (ROUTERS_VIGILADOS, NODOS_INFO2):
+        if nid in d: alias_oficial = d[nid]
+    titulo = alias_oficial or short or nid
+    if long and long.lower() not in (titulo.lower(), short.lower()):
+        titulo = f"{titulo} — {long}"
+    lh = n.get("lastHeard")
+    if lh:
+        ant = ahora - lh
+        estado = "🟢" if ant < MARGEN_ONLINE else "🔴"
+        try: hora = datetime.fromtimestamp(lh, ZoneInfo("Europe/Madrid")).strftime("%H:%M %d/%m")
+        except: hora = ""
+        res = f"📡 *{titulo}*\n🆔 `{nid}` | {estado} visto hace {formatear_tiempo_corto(ant)} ({hora})\n"
+    else:
+        res = f"📡 *{titulo}*\n🆔 `{nid}` | ⚪ sin datos en la red\n"
+    link = "🌐 MQTT" if n.get("viaMqtt") else "📻 LoRa"
+    extra = []
+    if n.get("snr") is not None: extra.append(f"SNR {n['snr']:.1f} dB")
+    if n.get("hopsAway") is not None: extra.append(f"{n['hopsAway']} saltos")
+    if n.get("channel") is not None: extra.append(f"canal {n['channel']}")
+    if extra: res += f"{link} | " + " · ".join(extra) + "\n"
+    dm = n.get("deviceMetrics") or {}
+    bat = dm.get("batteryLevel"); volt = dm.get("voltage")
+    up = dm.get("uptimeSeconds"); cu = dm.get("channelUtilization")
+    if bat is not None or volt is not None or cu is not None:
+        linea = "⚡ "
+        if bat is not None:
+            linea += f"🔋 {bat}%"
+            if volt is not None: linea += f" ({volt:.2f}V)"
+        elif volt is not None: linea += f"{volt:.2f}V"
+        if cu is not None: linea += f" | 📊 chUtil {cu:.1f}%"
+        if up: linea += f" | up {formatear_uptime(up)}"
+        res += linea + "\n"
+    pos = n.get("position") or {}
+    lat = pos.get("latitude"); lon = pos.get("longitude")
+    if lat and lon and (abs(lat) + abs(lon)) > 0:
+        acc = pos.get("gpsAccuracy"); alt = pos.get("altitude")
+        res += f"📍 {lat:.4f}, {lon:.4f}"
+        if alt: res += f" | {alt} m"
+        if acc: res += f" (≒{acc} m)"
+        res += "\n"
+        extra_p = []
+        if pos.get("satsInView"): extra_p.append(f"🛰️ {pos['satsInView']} sat")
+        ft = pos.get("fixType")
+        fixmap = {0:"no fix", 2:"fix 2D", 3:"fix 3D"}
+        if ft is not None: extra_p.append(fixmap.get(ft, f"fix {ft}"))
+        if pos.get("PDOP") is not None: extra_p.append(f"PDOP {pos['PDOP']}")
+        if pos.get("groundSpeed") is not None:
+            extra_p.append(f"vel {pos['groundSpeed']}km/h {grados_a_flecha(pos.get('groundTrack'))}")
+        if extra_p: res += "  " + " · ".join(extra_p) + "\n"
+        res += f"🔗 https://www.google.com/maps?q={lat:.5f},{lon:.5f}\n"
+    ident = []
+    if user.get("role") is not None: ident.append(f"rol {ROLES_MESH.get(user['role'], str(user['role']))}")
+    if user.get("hwModel") is not None: ident.append(f"HW {_nombre_hw(user['hwModel'])}")
+    if ident: res += "📊 " + " · ".join(ident) + "\n"
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=10)
+        c = conn.cursor()
+        c.execute("SELECT mensajes FROM trafico WHERE id=?", (nid,))
+        r = c.fetchone()
+        msgs = r[0] if r else 0
+        c.execute("SELECT fecha, hops, rol FROM nodos WHERE id=?", (nid,))
+        r2 = c.fetchone()
+        conn.close()
+        hist = []
+        if r2 and r2[0]: hist.append(f"1ª vez: {r2[0]}")
+        if msgs: hist.append(f"{msgs} msgs")
+        if hist: res += "📜 " + " · ".join(hist) + "\n"
+    except Exception as e:
+        logging.error(f"Detalle nodo BD {nid}: {e}")
+    return res
+
 # --- TRABAJADOR TELEGRAM ---
 def telegram_worker(iface):
     last_id = 0
@@ -2141,16 +2258,22 @@ def telegram_worker(iface):
                         ayuda = ("🤖 *BOT EA7 - COMANDOS*\n\n📡 *RED MESHTASTIC*\n/info → Estado de ROUTERS\n/info2 → Estado de nodos importantes\n/posicion → Nodos con telemetría mala\n/trafico → Ranking histórico de tráfico\n/top → Top 3 actividad últimas 6h\n/bd → Nodos con exceso de saltos\n/trace !id → Traceroute RF (solo admin)\n/status → Salud general del bot\n\n🌤️ *CLIMA Y VIENTO*\n/tiempo [prov] → Temperatura y cielo\n/viento [prov] → Rachas hoy y mañana\n/prevision [prov] → Pronóstico 3 días\n/calima [prov] → Polvo sahariano (PM10)\n/solar → Clima espacial (Kp, SFI)\n\n⛽ *OTROS*\n/gasolina [prov] → Precios carburantes\n/ra [indicativo] → Datos HamQTH\n/ia [consulta] → Pregunta a la IA\n/mqtt → Configuración MQTT\n/sota → Publicar spot SOTA\n/medusas → Datos de medusas\n/ping → Latencia y SNR\n/delete → Resetear BD\n\n🛡️ *PROTECCIÓN*\n/protect on|off → Activar/desactivar protección de nodos")
                         enviar_telegram(ayuda, cid, thread_id=tid)
                     elif cmd == "/info":
-                        ahora = time.time(); res = "🏗️ *ESTADO RED*\n\n"
-                        for nid, alias in ROUTERS_VIGILADOS.items():
-                            n = iface.nodes.get(nid)
-                            if n and 'lastHeard' in n:
-                                ant = ahora - n['lastHeard']
-                                metrics = n.get('deviceMetrics', {})
-                                res += f"{'🟢' if ant < MARGEN_ONLINE else '🔴'} *{alias}*\n└─ Visto: {formatear_tiempo_corto(ant)} | 🔋 {metrics.get('batteryLevel')}% | 📊 {metrics.get('channelUtilization', 0):.1f}%\n"
-                        enviar_telegram(res, cid, thread_id=tid)
+                        if len(partes) > 1:
+                            nid = resolver_nodo(iface, partes[1])
+                            if nid:
+                                enviar_telegram(formatear_detalle_nodo(iface, nid, time.time()), cid, thread_id=tid)
+                            else:
+                                enviar_telegram(f"No encontré el nodo *{partes[1]}* en la red. Usa un alias (AL02), nombre o parte del ID.", cid, thread_id=tid)
+                        else:
+                            ahora = time.time(); res = "🏗️ *ESTADO RED*\n\n"
+                            for nid, alias in ROUTERS_VIGILADOS.items():
+                                n = iface.nodes.get(nid)
+                                if n and 'lastHeard' in n:
+                                    ant = ahora - n['lastHeard']
+                                    metrics = n.get('deviceMetrics', {})
+                                    res += f"{'🟢' if ant < MARGEN_ONLINE else '🔴'} *{alias}*\n└─ Visto: {formatear_tiempo_corto(ant)} | 🔋 {metrics.get('batteryLevel')}% | 📊 {metrics.get('channelUtilization', 0):.1f}%\n"
+                            enviar_telegram(res, cid, thread_id=tid)
                     elif cmd == "/info2":
-                        NODOS_INFO2 = {"!d9e01680": "NAN6 (C. Real)", "!cb9edd74": "EA7 (S. Agustin)", "!fd91149c": "EA7 (Jarapa)", "!1adb57bc": "JES2 (S. Filabres)", "!657f422c": "ALM (Costa)", "!fe1d3a9d": "AL08 (Fiñana)", "!b9551f82": "SRA2 (Sierra 2.0)", "!c5d10c03": "CAR^ (Carboneras)", "!7394ac6f": "ALM (Faro)", "!86174e26": "7URI (URE Almería)"}
                         ahora = time.time(); res = "🏗️ *ESTADO RED (INFO 2)*\n\n"
                         for nid, alias in NODOS_INFO2.items():
                             n = iface.nodes.get(nid)
