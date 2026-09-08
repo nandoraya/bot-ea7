@@ -186,7 +186,7 @@ ROUTERS_VIGILADOS = {
     "!f9b6f070": "JA01"
 }
 
-NODOS_INFO2 = {"!d9e01680": "NAN6 (C. Real)", "!cb9edd74": "EA7 (S. Agustin)", "!fd91149c": "EA7 (Jarapa)", "!1adb57bc": "JES2 (S. Filabres)", "!657f422c": "ALM (Costa)", "!fe1d3a9d": "AL08 (Fiñana)", "!b9551f82": "SRA2 (Sierra 2.0)", "!c5d10c03": "CAR^ (Carboneras)", "!7394ac6f": "ALM (Faro)", "!86174e26": "7URI (URE Almería)"}
+NODOS_INFO2 = {"!d9e01680": "NAN6 (C. Real)", "!cb9edd74": "EA7 (S. Agustin)", "!fd91149c": "EA7 (Jarapa)", "!1adb57bc": "JES2 (S. Filabres)", "!657f422c": "ALM (Costa)", "!fe1d3a9d": "AL08 (Fiñana)", "!b9551f82": "SRA2 (Sierra 2.0)", "!c5d10c03": "CAR^ (Carboneras)", "!7394ac6f": "ALM (Faro)", "!86174e26": "7URI (URE Almería)", "!415af331": "TRKG (Tranktastic)"}
 
 TELEGRAM_TOKEN = _env("TELEGRAM_TOKEN")
 MI_CHAT_ID = _env("MI_CHAT_ID", "-1004339561947")
