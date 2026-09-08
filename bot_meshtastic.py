@@ -225,7 +225,7 @@ FIRMS_MAP_KEY = _env("FIRMS_MAP_KEY")
 
 # --- CALIMA CONFIGURACION ---
 CALIMA_UMBRAL_PM10 = 50.0
-CALIMA_PROVINCIAS = ["Almeria", "Granada", "Malaga", "Murcia", "Sevilla"]
+CALIMA_PROVINCIAS = ["Almeria", "Granada", "Malaga", "Jaen", "Sevilla"]
 
 # --- IA CONFIGURACION (GROQ) ---
 IA_API_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -270,12 +270,12 @@ PROVINCIAS = {
         "quake_center": (36.8, -4.5),
         "quake_radius": 1.3,
     },
-    "Murcia": {
-        "zones": {"733001", "733002", "733003", "733004", "733005"},
-        "channel_name": "Murcia",
-        "bbox": {"min_lon": -2.5, "min_lat": 37.3, "max_lon": -0.5, "max_lat": 38.8},
-        "quake_center": (37.9, -1.5),
-        "quake_radius": 1.5,
+    "Jaen": {
+        "zones": {"612301", "612302", "612303", "612304"},
+        "channel_name": "Jaen",
+        "bbox": {"min_lon": -4.4, "min_lat": 37.35, "max_lon": -2.4, "max_lat": 38.75},
+        "quake_center": (37.98, -3.47),
+        "quake_radius": 1.3,
     },
     "Sevilla": {
         "zones": {"414101", "414102", "414103", "414104", "414105", "414106"},
@@ -387,37 +387,36 @@ TOWNS = [
     ("Teba", 36.9833, -4.9167, "Malaga"),
     ("Manilva", 36.3667, -5.2500, "Malaga"),
     ("Casares", 36.4333, -5.2667, "Malaga"),
-    # Murcia
-    ("Murcia capital", 37.9833, -1.1333, "Murcia"),
-    ("Cartagena", 37.6000, -0.9833, "Murcia"),
-    ("Lorca", 37.6667, -1.7000, "Murcia"),
-    ("Molina de Segura", 38.0500, -1.2167, "Murcia"),
-    ("Alcantarilla", 37.9667, -1.2167, "Murcia"),
-    ("Cieza", 38.2333, -1.4167, "Murcia"),
-    ("Mazarron", 37.6000, -1.3167, "Murcia"),
-    ("Caravaca de la Cruz", 38.1000, -1.8667, "Murcia"),
-    ("Torre-Pacheco", 37.7333, -0.9500, "Murcia"),
-    ("San Javier", 37.8000, -0.8333, "Murcia"),
-    ("San Pedro del Pinatar", 37.8167, -0.7833, "Murcia"),
-    ("Yecla", 38.6167, -1.1167, "Murcia"),
-    ("Jumilla", 38.4667, -1.3167, "Murcia"),
-    ("Totana", 37.7667, -1.5000, "Murcia"),
-    ("Fuente Alamo", 37.7167, -1.1667, "Murcia"),
-    ("Aguilas", 37.4000, -1.5833, "Murcia"),
-    ("Archena", 38.1167, -1.3000, "Murcia"),
-    ("Ceuti", 38.0833, -1.2667, "Murcia"),
-    ("Librilla", 37.8833, -1.3500, "Murcia"),
-    ("Alhama de Murcia", 37.8500, -1.4167, "Murcia"),
-    ("Bullas", 38.0333, -1.6667, "Murcia"),
-    ("Mula", 38.0333, -1.4833, "Murcia"),
-    ("Las Torres de Cotillas", 38.0333, -1.2500, "Murcia"),
-    ("Puerto Lumbreras", 37.5667, -1.8167, "Murcia"),
-    ("Blanca", 38.1833, -1.3667, "Murcia"),
-    ("Abaran", 38.2000, -1.4000, "Murcia"),
-    ("Ricote", 38.1500, -1.3667, "Murcia"),
-    ("Calasparra", 38.2333, -1.7000, "Murcia"),
-    ("Moratalla", 38.1833, -1.8833, "Murcia"),
-    ("Lorca capital", 37.6667, -1.7000, "Murcia"),
+    # Jaen
+    ("Jaén capital", 37.7692, -3.7903, "Jaen"),
+    ("Linares", 38.0952, -3.6365, "Jaen"),
+    ("Úbeda", 38.0136, -3.3707, "Jaen"),
+    ("Andújar", 38.0372, -4.0509, "Jaen"),
+    ("Alcalá la Real", 37.4617, -3.9239, "Jaen"),
+    ("Martos", 37.7211, -3.9689, "Jaen"),
+    ("Bailén", 38.0988, -3.7789, "Jaen"),
+    ("La Carolina", 38.2769, -3.6176, "Jaen"),
+    ("Alcaudete", 37.5894, -4.0891, "Jaen"),
+    ("Mancha Real", 37.7867, -3.6120, "Jaen"),
+    ("Torreperogil", 38.0358, -3.2897, "Jaen"),
+    ("Jódar", 37.8409, -3.3515, "Jaen"),
+    ("Villanueva del Arzobispo", 38.1695, -3.0044, "Jaen"),
+    ("Beas de Segura", 38.2521, -2.8959, "Jaen"),
+    ("Segura de la Sierra", 38.2964, -2.6534, "Jaen"),
+    ("Cazorla", 37.9102, -3.0045, "Jaen"),
+    ("Quesada", 37.8458, -3.0670, "Jaen"),
+    ("Villacarrillo", 38.1177, -3.0846, "Jaen"),
+    ("Santisteban del Puerto", 38.2486, -3.2094, "Jaen"),
+    ("Navas de San Juan", 38.1827, -3.3211, "Jaen"),
+    ("Arquillos", 38.1825, -3.4234, "Jaen"),
+    ("Lopera", 37.9450, -4.2144, "Jaen"),
+    ("Porcuna", 37.8753, -4.1884, "Jaen"),
+    ("Arjona", 37.9358, -4.0561, "Jaen"),
+    ("Marmolejo", 38.0458, -4.1681, "Jaen"),
+    ("Mengíbar", 37.9696, -3.8047, "Jaen"),
+    ("Torredonjimeno", 37.7675, -3.9597, "Jaen"),
+    ("Torredelcampo", 37.8647, -3.9042, "Jaen"),
+    ("Huelma", 37.6477, -3.4597, "Jaen"),
     # Sevilla
     ("Sevilla capital", 37.3891, -5.9845, "Sevilla"),
     ("Dos Hermanas", 37.2829, -5.9209, "Sevilla"),
@@ -1678,12 +1677,9 @@ def terremotos_worker(iface):
 def incendios_worker(iface):
     MAP_KEY = FIRMS_MAP_KEY
     url = f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{MAP_KEY}/VIIRS_SNPP_NRT/world/1"
-    # FIRMS cubre solo Murcia (Plan INFOMUR): las provincias andaluzas las alerta INFOCA.
-    FIRE_BBOXES = {
-        "Murcia":  {"min_lon": -2.5, "min_lat": 37.3, "max_lon": -0.5, "max_lat": 38.8},
-    }
+    # FIRMS ya no cubre ninguna provincia del bot: las andaluzas (incl. Jaén) las alerta INFOCA.
+    FIRE_BBOXES = {}
     RADIO_AGRUPACION = 0.05
-    FIRE_EMOJI = {"Murcia": "🟠"}
     while True:
         try:
             r = requests.get(url, timeout=30)
@@ -1747,7 +1743,7 @@ def incendios_worker(iface):
 
                 localidad, provincia = localidad_cercana(lat_avg, lon_avg)
                 if not provincia:
-                    provincia = "Murcia"
+                    provincia = "Jaen"
 
                 fire_id = f"{lat_avg:.2f}_{lon_avg:.2f}_{date}"
 
@@ -1798,6 +1794,7 @@ INFOCA_VISOR_URL = "https://www.juntadeandalucia.es/organismos/ema/areas/incendi
 INFOCA_PROV_MAP = {
     "ALMERÍA": "Almeria", "ALMERIA": "Almeria",
     "GRANADA": "Granada",
+    "JAÉN": "Jaen", "JAEN": "Jaen",
     "MÁLAGA": "Malaga", "MALAGA": "Malaga",
     "SEVILLA": "Sevilla",
 }
@@ -2509,8 +2506,8 @@ def iniciar():
                         CHANNEL_TO_PROV[ch.index] = prov
                         break
         except:
-            CHANNEL_TO_PROV = {0: "Almeria", 2: "Granada", 3: "Malaga", 4: "Murcia", 5: "Sevilla"}
-            CHANNEL_NAMES = {0: "Primary", 2: "Granada", 3: "Malaga", 4: "Murcia", 5: "Sevilla"}
+            CHANNEL_TO_PROV = {0: "Almeria", 2: "Granada", 3: "Malaga", 4: "Jaen", 5: "Sevilla"}
+            CHANNEL_NAMES = {0: "Primary", 2: "Granada", 3: "Malaga", 4: "Jaen", 5: "Sevilla"}
         # --- ANTI-SPAM: envoltura con rate limiter ---
         original_send = iface.sendText
         def rate_limited_send(text, **kw):
