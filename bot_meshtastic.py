@@ -2144,7 +2144,8 @@ def resolver_nodo(iface, arg):
     if not a: return None
     for d in (ROUTERS_VIGILADOS, NODOS_INFO2):
         for nid, alias in d.items():
-            if a == alias.strip().lower() or a == nid.lower() or a == nid.lstrip("!"):
+            alias_base = alias.split(" (")[0].strip().lower()
+            if a == alias.strip().lower() or a == alias_base or a == nid.lower() or a == nid.lstrip("!"):
                 return nid
     a_id = a if a.startswith("!") else "!" + a
     for nid, n in (iface.nodes or {}).items():
@@ -2166,7 +2167,7 @@ def formatear_detalle_nodo(iface, nid, ahora):
     alias_oficial = None
     for d in (ROUTERS_VIGILADOS, NODOS_INFO2):
         if nid in d: alias_oficial = d[nid]
-    titulo = alias_oficial or short or nid
+    titulo = (alias_oficial.split(" (")[0] if alias_oficial else None) or short or nid
     if long and long.lower() not in (titulo.lower(), short.lower()):
         titulo = f"{titulo} — {long}"
     lh = n.get("lastHeard")
@@ -2177,7 +2178,7 @@ def formatear_detalle_nodo(iface, nid, ahora):
         except: hora = ""
         res = f"📡 *{titulo}*\n🆔 `{nid}` | {estado} visto hace {formatear_tiempo_corto(ant)} ({hora})\n"
     else:
-        res = f"📡 *{titulo}*\n🆔 `{nid}` | ⚪ sin datos en la red\n"
+        res = f"📡 *{titulo}*\n🆔 `{nid}` | ⚪ sin datos en esta sesión\n"
     link = "🌐 MQTT" if n.get("viaMqtt") else "📻 LoRa"
     extra = []
     if n.get("snr") is not None: extra.append(f"SNR {n['snr']:.1f} dB")
@@ -2228,7 +2229,11 @@ def formatear_detalle_nodo(iface, nid, ahora):
         r2 = c.fetchone()
         conn.close()
         hist = []
-        if r2 and r2[0]: hist.append(f"1ª vez: {r2[0]}")
+        if lh:
+            if r2 and r2[0]: hist.append(f"1ª vez: {r2[0]}")
+        else:
+            if r2 and r2[0]: hist.append(f"📅 Último visto: {r2[0]}")
+        if r2 and r2[1] is not None: hist.append(f"{r2[1]} saltos")
         if msgs: hist.append(f"{msgs} msgs")
         if hist: res += "📜 " + " · ".join(hist) + "\n"
     except Exception as e:
