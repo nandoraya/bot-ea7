@@ -179,7 +179,7 @@ ROUTERS_VIGILADOS = {
     "!c9f19db9": "GR02",    
     "!7698895a": "AL01",
     "!8c75ca9f": "AL02",
-    "!81fde5cc": "AL03",
+    "!d62374f1": "AL03",
     "!af429732": "MA03",
     "!da061b4e": "MA04",
     "!b62448bb": "SE01",
@@ -216,7 +216,7 @@ def post_mensaje_potato(texto, ch_idx, iface):
 SOTA_USER = _env("SOTA_USER", "EA7LQK")
 SOTA_PASS = _env("SOTA_PASS")
 SOTA_TOKEN_URL = "https://sso.sota.org.uk/auth/realms/SOTA/protocol/openid-connect/token"
-SOTA_API_URL = "https://api2.sota.org.uk/api/spots"
+SOTA_API_URL = "https://api-db2.sota.org.uk/api/spots"
 SOTA_CLIENT_ID = "sotawatch"
 
 # --- AEMET CONFIGURACIÓN ---
@@ -468,7 +468,7 @@ def validar_cumbre_sota(assoc, summit):
         token = obtener_token_sota()
         if not token:
             return None, "Error auth SOTA"
-        r = requests.get(f"https://api2.sota.org.uk/api/summits/{assoc}/{summit}", headers={
+        r = requests.get(f"https://api-db2.sota.org.uk/api/summits/{assoc}/{summit}", headers={
             "Authorization": f"Bearer {token}"
         }, timeout=15)
         if r.status_code == 200:
@@ -489,9 +489,17 @@ def parsear_ref_sota(ref):
 
 def obtener_spots_sota(limite=10):
     try:
-        r = requests.get(f"https://api2.sota.org.uk/api/spots/{limite}/all", timeout=10)
+        r = requests.get(f"{SOTA_API_URL}/{limite}/all/all", timeout=10)
         if r.status_code == 200:
-            return r.json()
+            try:
+                data = r.json()
+            except Exception:
+                return None
+            if isinstance(data, list) and data:
+                if all(isinstance(s, dict) and s.get("id") is None for s in data):
+                    debug_log("SOTA: spots placeholder (API deprecada) detectado")
+                    return None
+            return data
     except Exception as e:
         debug_log(f"SOTA spots error: {e}")
     return None
