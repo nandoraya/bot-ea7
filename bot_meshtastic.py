@@ -181,7 +181,7 @@ ROUTERS_VIGILADOS = {
     "!8c75ca9f": "AL02",
     "!d62374f1": "AL03",
     "!af429732": "MA03",
-    "!da061b4e": "MA04",
+    "!6689c490": "MA02",
     "!b62448bb": "SE01",
     "!f9b6f070": "JA01"
 }
@@ -225,7 +225,7 @@ FIRMS_MAP_KEY = _env("FIRMS_MAP_KEY")
 
 # --- CALIMA CONFIGURACION ---
 CALIMA_UMBRAL_PM10 = 50.0
-CALIMA_PROVINCIAS = ["Almeria", "Granada", "Malaga", "Jaen", "Sevilla"]
+CALIMA_PROVINCIAS = ["Almeria", "Granada", "Malaga", "Jaen", "Sevilla", "Cordoba"]
 
 # --- IA CONFIGURACION (GROQ) ---
 IA_API_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -282,6 +282,13 @@ PROVINCIAS = {
         "channel_name": "Sevilla",
         "bbox": {"min_lon": -6.5, "min_lat": 36.4, "max_lon": -4.5, "max_lat": 38.2},
         "quake_center": (37.38, -5.98),
+        "quake_radius": 1.3,
+    },
+    "Cordoba": {
+        "zones": {"611401", "611402", "611403", "611404"},
+        "channel_name": "Cordoba",
+        "bbox": {"min_lon": -5.5, "min_lat": 37.2, "max_lon": -3.5, "max_lat": 38.5},
+        "quake_center": (37.88, -4.77),
         "quake_radius": 1.3,
     },
 }
@@ -417,6 +424,27 @@ TOWNS = [
     ("Torredonjimeno", 37.7675, -3.9597, "Jaen"),
     ("Torredelcampo", 37.8647, -3.9042, "Jaen"),
     ("Huelma", 37.6477, -3.4597, "Jaen"),
+    # Cordoba
+    ("Córdoba capital", 37.8882, -4.7694, "Cordoba"),
+    ("Lucena", 37.4089, -4.4853, "Cordoba"),
+    ("Montilla", 37.5863, -4.6383, "Cordoba"),
+    ("Puente Genil", 37.3894, -4.7669, "Cordoba"),
+    ("Priego de Córdoba", 37.4381, -4.1958, "Cordoba"),
+    ("Baena", 37.6167, -4.3667, "Cordoba"),
+    ("Cabra", 37.4747, -4.4436, "Cordoba"),
+    ("Posadas", 37.8000, -5.0167, "Cordoba"),
+    ("Palma del Río", 37.7000, -5.2833, "Cordoba"),
+    ("Villafranca de Córdoba", 37.9167, -4.5333, "Cordoba"),
+    ("Almodóvar del Río", 37.8000, -5.0167, "Cordoba"),
+    ("La Carlota", 37.6667, -4.9333, "Cordoba"),
+    ("Fuente Palmera", 37.6833, -5.1667, "Cordoba"),
+    ("La Rambla", 37.6000, -4.7167, "Cordoba"),
+    ("Montemayor", 37.6500, -4.7500, "Cordoba"),
+    ("Aguilar de la Frontera", 37.5167, -4.6500, "Cordoba"),
+    ("Fernán Núñez", 37.6667, -4.7167, "Cordoba"),
+    ("Montalbán de Córdoba", 37.8333, -4.6333, "Cordoba"),
+    ("Nueva Carteya", 37.5000, -4.3833, "Cordoba"),
+    ("Doña Mencía", 37.4500, -4.1500, "Cordoba"),
     # Sevilla
     ("Sevilla capital", 37.3891, -5.9845, "Sevilla"),
     ("Dos Hermanas", 37.2829, -5.9209, "Sevilla"),
@@ -1805,6 +1833,7 @@ INFOCA_PROV_MAP = {
     "JAÉN": "Jaen", "JAEN": "Jaen",
     "MÁLAGA": "Malaga", "MALAGA": "Malaga",
     "SEVILLA": "Sevilla",
+    "CÓRDOBA": "Cordoba", "CORDOBA": "Cordoba",
 }
 INFOCA_EMOJI = {"ACTIVO": "🔥", "CONTROLADO": "⛑️", "MOVILIZADO": "🚨", "EN EXTINCION": "🚨"}
 
